@@ -71,11 +71,16 @@ end_hash(struct _ParseInfo *pi) {
     if (0 != parent->classname) {
 	VALUE	clas;
 
+	printf("*** end_hash with parent->classname '%s'\n", parent->classname);
 	clas = oj_name2class(pi, parent->classname, parent->clen, 0);
+	printf("*** oj_name2class returned: %ld\n", clas);
 	if (Qundef != clas) { // else an error
+	    printf("*** calling Ruby json_create with %ld\n", parent->val);
 	    parent->val = rb_funcall(clas, oj_json_create_id, 1, parent->val);
+	    printf("*** json_create returned %ld\n", parent->val);
 	}
 	if (parent->classname < pi->json || pi->end < parent->classname) {
+	    printf("*** free classname\n");
 	    xfree((char*)parent->classname);
 	    parent->classname = 0;
 	}

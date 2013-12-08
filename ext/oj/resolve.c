@@ -99,6 +99,7 @@ oj_name2class(ParseInfo pi, const char *name, size_t len, int auto_define) {
     VALUE	clas;
     VALUE	*slot;
 
+    printf("*** oj_name2class called\n");
     if (No == pi->options.class_cache) {
 	return resolve_classpath(pi, name, len, auto_define);
     }
@@ -109,7 +110,9 @@ oj_name2class(ParseInfo pi, const char *name, size_t len, int auto_define) {
 #endif
     if (Qnil == (clas = oj_class_hash_get(name, len, &slot))) {
 	if (Qundef != (clas = resolve_classpath(pi, name, len, auto_define))) {
+	    printf("*** slot: %p, *slot = %ld\n", slot, *slot);
 	    *slot = clas;
+	    printf("*** after assignment slot: %p, *slot = %ld\n", slot, *slot);
 	}
     }
 #if USE_PTHREAD_MUTEX
@@ -117,5 +120,6 @@ oj_name2class(ParseInfo pi, const char *name, size_t len, int auto_define) {
 #elif USE_RB_MUTEX
     rb_mutex_unlock(oj_cache_mutex);
 #endif
+    printf("*** oj_name2class returning %ld\n", clas);
     return clas;
 }
