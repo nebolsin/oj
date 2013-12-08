@@ -88,7 +88,7 @@ hash_calc(const uint8_t *key, size_t len) {
 
 void
 oj_hash_init() {
-    printf("*** initialized cache\n");
+    printf("*** initialized cache, size %ld\n", sizeof(class_hash.slots));
     memset(class_hash.slots, 0, sizeof(class_hash.slots));
     memset(intern_hash.slots, 0, sizeof(intern_hash.slots));
 }
