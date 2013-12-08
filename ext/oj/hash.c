@@ -54,6 +54,7 @@ struct _Hash	intern_hash;
 #define C2 0x1B873593
 #define N  0xE6546B64
 
+#if 0
 static uint32_t
 hash_calc(const uint8_t *key, size_t len) {
     uint32_t	k;
@@ -85,10 +86,47 @@ hash_calc(const uint8_t *key, size_t len) {
     
     return h;
 }
+#else
+static uint32_t
+hash_calc(const uint8_t *key, size_t len) {
+    const uint8_t	*end = key + len;
+    const uint8_t	*endless = key + (len / 4 * 4);
+    uint32_t		h = (uint32_t)len;
+    uint32_t		k;
+    uint8_t		k8 = '\0';
+
+    while (key < endless) {
+	k = (uint32_t)*key++;
+	k |= (uint32_t)*key++ << 8;
+	k |= (uint32_t)*key++ << 16;
+	k |= (uint32_t)*key++ << 24;
+
+        k *= M;
+        k ^= k >> 24;
+        h *= M;
+        h ^= k * M;
+    }
+    if (1 < end - key) {
+	uint16_t	k16 = (uint16_t)*key++;
+
+	k16 |= (uint16_t)*key++ << 8;
+	h ^= k16 << 8;
+    }
+    if (key < end) {
+	k8 = *key;
+	h ^= k8;
+    }
+    h *= M;
+    h ^= h >> 13;
+    h *= M;
+    h ^= h >> 15;
+    
+    return h;
+}
+#endif
 
 void
 oj_hash_init() {
-    printf("*** initialized cache, size %ld\n", sizeof(class_hash.slots));
     memset(class_hash.slots, 0, sizeof(class_hash.slots));
     memset(intern_hash.slots, 0, sizeof(intern_hash.slots));
 }
@@ -99,14 +137,12 @@ hash_get(Hash hash, const char *key, size_t len, VALUE **slotp, VALUE def_value)
     uint32_t	h = hash_calc((const uint8_t*)key, len) & HASH_MASK;
     KeyVal	bucket = hash->slots + h;
 
-    printf("*** hash_get\n");
     if (0 != bucket->key) {
 	KeyVal	b;
 
 	for (b = bucket; 0 != b; b = b->next) {
 	    if (len == b->len && 0 == strncmp(b->key, key, len)) {
 		*slotp = &b->val;
-		printf("*** hash_get returned %ld\n", b->val);
 		return b->val;
 	    }
 	    bucket = b;
@@ -125,7 +161,6 @@ hash_get(Hash hash, const char *key, size_t len, VALUE **slotp, VALUE def_value)
 	bucket->val = def_value;
 	*slotp = &bucket->val;
     }
-    printf("*** hash_get returned default %ld\n", def_value);
     return def_value;
 }
 

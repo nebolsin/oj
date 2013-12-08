@@ -64,7 +64,7 @@ end
 
 class DebJuice < ::Test::Unit::TestCase
 
-  def zzztest_class_hash
+  def ztest_class_hash
     Oj.hash_test()
   end
 
