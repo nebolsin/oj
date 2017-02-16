@@ -171,6 +171,12 @@ class SharedMimicTest < Minitest::Test
     assert_equal({ 'a' => 1, 'b' => [true, false]}, obj)
   end
 
+  def test_bracket_load_params
+    json = %{{"a":1,"b":[true,false]}}
+    obj = JSON[json, :symbolize_names => true]
+    assert_equal({:a => 1, :b => [true, false]}, obj)
+  end
+
   def test_bracket_dump
     json = JSON[[1, true, nil]]
     assert_equal(%{[1,true,null]}, json)

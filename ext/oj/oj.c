@@ -1695,18 +1695,6 @@ mimic_load(int argc, VALUE *argv, VALUE self) {
 }
 
 static VALUE
-mimic_dump_load(int argc, VALUE *argv, VALUE self) {
-    if (1 > argc) {
-	rb_raise(rb_eArgError, "wrong number of arguments (0 for 1)");
-    } else if (T_STRING == rb_type(*argv)) {
-	return mimic_load(argc, argv, self);
-    } else {
-	return mimic_dump(argc, argv, self);
-    }
-    return Qnil;
-}
-
-static VALUE
 mimic_generate_core(int argc, VALUE *argv, Options copts) {
     char	buf[4096];
     struct _Out	out;
@@ -1861,6 +1849,18 @@ mimic_parse(int argc, VALUE *argv, VALUE self) {
     *args = *argv;
 
     return oj_pi_parse(1, args, &pi, 0, 0, 0);
+}
+
+static VALUE
+mimic_dump_load(int argc, VALUE *argv, VALUE self) {
+    if (1 > argc) {
+	rb_raise(rb_eArgError, "wrong number of arguments (0 for 1)");
+    } else if (T_STRING == rb_type(*argv)) {
+	return mimic_parse(argc, argv, self);
+    } else {
+	return mimic_generate(argc, argv, self);
+    }
+    return Qnil;
 }
 
 static VALUE
